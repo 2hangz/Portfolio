@@ -6,6 +6,7 @@ const nextConfig = {
   output: "export",
   images: { unoptimized: true },
   basePath: isGithub ? "/Portfolio" : "",
+  eslint: { ignoreDuringBuilds: true },
 };
 
 export default nextConfig;

@@ -14,7 +14,7 @@ export default function AvatarCard() {
       <div className="flex flex-col items-center gap-4">
         <div className="relative w-28 h-28 rounded-full overflow-hidden ring-4 ring-gray-800 shadow-md">
           <Image
-            src="/Portfolio/avatar.png"
+            src="/avatar.png"
             alt="profile image"
             fill
             sizes="112px"
@@ -27,7 +27,7 @@ export default function AvatarCard() {
           <p className="text-sm text-gray-400 mb-1">Interactive Media Designer</p>
           <h1 className="text-2xl font-semibold">I'm Hang Zhou</h1>
           <p className="text-sm text-gray-400 mt-1">
-           Based in Cork, Ireland
+           Based in Beijing, China
           </p>
         </div>
 

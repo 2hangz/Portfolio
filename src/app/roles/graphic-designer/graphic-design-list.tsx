@@ -1,26 +1,34 @@
 const userGuideGraphics = {
   sunshade: [
-    '/Portfolio/graphics/user-guide/sunshade-1.png',
-    '/Portfolio/graphics/user-guide/sunshade-2.png',
-    '/Portfolio/graphics/user-guide/sunshade-3.png',
-    '/Portfolio/graphics/user-guide/sunshade-4.png',
+    '/graphics/user-guide/sunshade-1.png',
+    '/graphics/user-guide/sunshade-2.png',
+    '/graphics/user-guide/sunshade-3.png',
+    '/graphics/user-guide/sunshade-4.png',
   ]
 };
 
 const productPromotionGraphics = {
   accessories: [
-    '/Portfolio/graphics/accessories/01.jpg',
-    '/Portfolio/graphics/accessories/02.jpg',
-    '/Portfolio/graphics/accessories/03.jpg',
+    '/graphics/accessories/01.jpg',
+    '/graphics/accessories/02.jpg',
+    '/graphics/accessories/03.jpg',
   ],
   campaign: [
-    '/Portfolio/graphics/campaign/01.jpg',
-    '/Portfolio/graphics/campaign/02.jpg',
-    '/Portfolio/graphics/campaign/03.jpg',
-    '/Portfolio/graphics/campaign/04.jpg',
-    '/Portfolio/graphics/campaign/05.jpg',
-    '/Portfolio/graphics/campaign/06.jpg',
+    '/graphics/campaign/01.jpg',
+    '/graphics/campaign/02.jpg',
+    '/graphics/campaign/03.jpg',
+    '/graphics/campaign/04.jpg',
+    '/graphics/campaign/05.jpg',
+    '/graphics/campaign/06.jpg',
   ],
 };
+const storytellingGraphics = {
+storytelling: [
+  '/graphics/storytelling/Industry Brief_v6.png',
+  '/graphics/storytelling/mainProducts(verticle white border).png',
+  '/graphics/storytelling/WebBanner.png',
+  '/graphics/storytelling/WebBanner2.png'
+],
+};
 
-export { userGuideGraphics, productPromotionGraphics };
+export { userGuideGraphics, productPromotionGraphics, storytellingGraphics};

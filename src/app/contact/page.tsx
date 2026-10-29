@@ -81,7 +81,7 @@ export default function ContactPage() {
         )}
         <div className="mt-10 border-t border-gray-800 pt-6 text-center">
           <p className="text-gray-500 text-sm">
-            Or email me directly:{' '}
+            {t('Or email me directly:')}{' '}
             <a
               href="mailto:hangz2024@outlook.com"
               className="text-blue-400 hover:underline"

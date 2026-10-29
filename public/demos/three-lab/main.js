@@ -2,6 +2,7 @@
 // Student ID: 124100870
 
 import * as THREE from 'three';
+import { trackVideo, playbackHint } from './loading.js';
 import * as CANNON from './libs/cannon-es.js';
 import { GLTFLoader } from './libs/GLTFLoader.js';
 import { OrbitControls } from './libs/OrbitControls.js';
@@ -52,6 +53,7 @@ let cameraFlying = true;
 
 // Renderer setup
 const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -300,6 +302,11 @@ video.src = 'assets/videos/dance.mp4';
 video.loop = true;
 video.muted = true;
 video.playsInline = true;
+video.preload = 'auto';
+video.id = 'classroom-video';
+video.hidden = true;
+document.body.appendChild(video);
+trackVideo(video);
 video.load();
 
 const videoTexture = new THREE.VideoTexture(video);
@@ -400,28 +407,21 @@ world.addBody(speakerRightBody);
 const listener = new THREE.AudioListener();
 camera.add(listener);
 
-// Load Sound for Left Speaker
+// Share one decoded audio buffer. Sound starts only after the user enables it.
 const audioLoader = new THREE.AudioLoader();
 const speakerSoundLeft = new THREE.PositionalAudio(listener);
-audioLoader.load('assets/sounds/sound.mp3', function(buffer) {
-  speakerSoundLeft.setBuffer(buffer);
-  speakerSoundLeft.setRefDistance(2);
-  speakerSoundLeft.setLoop(true);
-  speakerSoundLeft.setVolume(0.5);
-  speakerSoundLeft.play();
-});
-speakerLeft.add(speakerSoundLeft);
-
-// Load Sound for Right Speaker
 const speakerSoundRight = new THREE.PositionalAudio(listener);
-audioLoader.load('assets/sounds/sound.mp3', function(buffer) {
-  speakerSoundRight.setBuffer(buffer);
-  speakerSoundRight.setRefDistance(2);
-  speakerSoundRight.setLoop(true);
-  speakerSoundRight.setVolume(0.5);
-  speakerSoundRight.play();
-});
+speakerLeft.add(speakerSoundLeft);
 speakerRight.add(speakerSoundRight);
+audioLoader.load('assets/sounds/sound.mp3', buffer => {
+  for (const sound of [speakerSoundLeft, speakerSoundRight]) {
+    sound.setBuffer(buffer);
+    sound.setRefDistance(2);
+    sound.setLoop(true);
+    sound.setVolume(0.5);
+  }
+  syncMusic();
+});
 log("Speakers created with physics");
 
 // ===============
@@ -779,6 +779,7 @@ function resetBall() {
     (Math.random() - 0.5) * 3
   );
   ballBody.angularVelocity.set(0, 0, 0);
+  ballBody.wakeUp();
 }
 
 // =================
@@ -915,83 +916,58 @@ buildLaser(controller2);
 // ==============
 // Media Control 
 // ==============
+function setCharacterAction(index) {
+  const next = m1Animations[index];
+  if (!next || m1CurrentAction === next) return;
+  m1CurrentAction?.fadeOut(0.3);
+  m1CurrentAction = next;
+  next.reset().fadeIn(0.3).play();
+}
+async function syncMusic() {
+  const sounds = [speakerSoundLeft, speakerSoundRight];
+  if (!mediaControl.musicEnabled || video.paused) {
+    sounds.forEach(sound => { if (sound.isPlaying) sound.pause(); });
+    return;
+  }
+  try {
+    const context = THREE.AudioContext.getContext();
+    if (context.state === 'suspended') await context.resume();
+    if (!mediaControl.musicEnabled || video.paused) return;
+    sounds.forEach((sound, index) => {
+      if (!sound.buffer) return;
+      const enabled = index ? speakerControl.rightEnabled : speakerControl.leftEnabled;
+      const volume = index ? speakerControl.rightVolume : speakerControl.leftVolume;
+      sound.setVolume(enabled ? volume : 0);
+      if (!sound.isPlaying) sound.play();
+    });
+  } catch (error) { console.warn('Audio playback could not start.', error); }
+}
 const mediaControl = {
   isPlaying: false,
   musicEnabled: false,
-  togglePlayPause: () => {
-    if (mediaControl.isPlaying) {
-      video.pause();
-      log('Video paused');
-      speakerSoundLeft.pause();
-      speakerSoundRight.pause();
-
-      if (m1Animations[1]) {
-        if (m1CurrentAction !== m1Animations[1]) {
-          m1CurrentAction.fadeOut(0.3);
-        }
-        m1CurrentAction = m1Animations[1];
-        m1CurrentAction.reset().fadeIn(0.3).play();
-      }
-
-      mediaControl.isPlaying = false;
-    } else {
-      video.play();
-      log('Video started');
-
-      if (mediaControl.musicEnabled) {
-        const audioCtx = THREE.AudioContext.getContext();
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume().then(() => {
-            speakerSoundLeft.play();
-            speakerSoundRight.play();
-          });
-        } else {
-          speakerSoundLeft.play();
-          speakerSoundRight.play();
-        }
-      }
-
-      if (m1Animations[0]) {
-        if (m1CurrentAction !== m1Animations[0]) {
-          m1CurrentAction.fadeOut(0.3);
-        }
-        m1CurrentAction = m1Animations[0];
-        m1CurrentAction.reset().fadeIn(0.3).play();
-      }
-
-      mediaControl.isPlaying = true;
+  togglePlayPause: async () => {
+    if (!video.paused) video.pause();
+    else {
+      try { await video.play(); } catch { playbackHint(); }
     }
   },
-  toggleMusic: (val) => {
-    mediaControl.musicEnabled = val;
-
-    if (val) {
-      speakerFolder.show(); 
-      log('Speaker control showed');
-      const audioCtx = THREE.AudioContext.getContext();
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume().then(() => {
-          if (mediaControl.isPlaying) {
-            speakerSoundLeft.play();
-            speakerSoundRight.play();
-            log('Speaker started');
-          }
-        });
-      } else {
-        if (mediaControl.isPlaying) {
-          speakerSoundLeft.play();
-          speakerSoundRight.play();
-          log('Speaker started');
-        }
-      }
-    } else {
-      speakerSoundLeft.pause();
-      speakerSoundRight.pause();
-      log('Speaker paused');
-      speakerFolder.hide(); 
-    }
+  toggleMusic: value => {
+    mediaControl.musicEnabled = value;
+    if (value) speakerFolder.show();
+    else speakerFolder.hide();
+    syncMusic();
   }
 };
+video.addEventListener('play', () => {
+  mediaControl.isPlaying = true;
+  setCharacterAction(0);
+  syncMusic();
+});
+video.addEventListener('pause', () => {
+  mediaControl.isPlaying = false;
+  setCharacterAction(1);
+  syncMusic();
+});
 
 // ========
 // GUI 
@@ -1020,12 +996,12 @@ speakerFolder.add(speakerControl, 'leftEnabled').name("Left Speaker On/Off").onC
     speakerSoundLeft.setVolume(val ? speakerControl.leftVolume : 0);
   }
 });
-speakerFolder.add(speakerControl, 'leftVolume', 0, 1, 0.01).onChange(val => {
+speakerFolder.add(speakerControl, 'leftVolume', 0, 1, 0.01).name('Left Volume').onChange(val => {
   if (speakerSoundLeft && speakerControl.leftEnabled) {
     speakerSoundLeft.setVolume(val);
   }
 });
-speakerFolder.add(speakerControl, 'leftDistance', 0.1, 10, 0.1).onChange(val => {
+speakerFolder.add(speakerControl, 'leftDistance', 0.1, 10, 0.1).name('Left Reference Distance').onChange(val => {
   if (speakerSoundLeft) {
     speakerSoundLeft.setRefDistance(val);
   }
@@ -1035,12 +1011,12 @@ speakerFolder.add(speakerControl, 'rightEnabled').name("Right Speaker On/Off").o
     speakerSoundRight.setVolume(val ? speakerControl.rightVolume : 0);
   }
 });
-speakerFolder.add(speakerControl, 'rightVolume', 0, 1, 0.01).onChange(val => {
+speakerFolder.add(speakerControl, 'rightVolume', 0, 1, 0.01).name('Right Volume').onChange(val => {
   if (speakerSoundRight && speakerControl.rightEnabled) {
     speakerSoundRight.setVolume(val);
   }
 });
-speakerFolder.add(speakerControl, 'rightDistance', 0.1, 10, 0.1).onChange(val => {
+speakerFolder.add(speakerControl, 'rightDistance', 0.1, 10, 0.1).name('Right Reference Distance').onChange(val => {
   if (speakerSoundRight) {
     speakerSoundRight.setRefDistance(val);
   }
@@ -1066,7 +1042,7 @@ directionalFolder.add(lights.directional.position, 'x', -10, 10, 0.1);
 directionalFolder.add(lights.directional.position, 'y', 0, 10, 0.1);
 directionalFolder.add(lights.directional.position, 'z', -10, 10, 0.1);
 
-const lampFolder = gui.addFolder('Lamp(Point Light)');
+const lampFolder = gui.addFolder('Lamp (Point Light)');
 lampFolder.add(lampSettings, 'enabled').name('On/Off').onChange(val => {
   lights.point.intensity = val ? lampSettings.lightIntensity : 0;
   bulbMat.emissiveIntensity = val ? lampSettings.bulbIntensity : 0.05;
@@ -1079,6 +1055,7 @@ lampFolder.addColor({ color: lights.point.color.getHex() }, 'color').onChange(v 
 lampFolder.add(lampSettings, 'lightIntensity', 0, 5, 0.1)
   .name('Light Intensity')
   .onChange(val => {
+    lampSettings.bulbIntensity = val;
     if (lampSettings.enabled) {
       lights.point.intensity = val; 
       bulbMat.emissiveIntensity = val;  
@@ -1113,11 +1090,11 @@ window.addEventListener("resize", () => {
 // Animation Loop
 // ========================
 const clock = new THREE.Clock();
-let lastTime = 0;
+let lastTime = performance.now();
 
 function animate() {
   const time = performance.now();
-  const deltaTime = (time - lastTime) / 1000;
+  const deltaTime = Math.min((time - lastTime) / 1000, 0.1);
   lastTime = time;
 
   // Update physics
@@ -1185,29 +1162,15 @@ function animate() {
   // Render scene
   renderer.render(scene, camera);
 
-  // Handle VR rendering
-  if (renderer.xr.isPresenting) {
-    renderer.setAnimationLoop(animate);
-  } else {
-    requestAnimationFrame(animate);
-  }
 }
 
 // =========
 // Autoplay 
 // =========
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    video.play();
-    if (m1Animations[0]) {
-      m1CurrentAction = m1Animations[0];
-      m1CurrentAction.reset().fadeIn(0.3).play();
-    }
-    mediaControl.isPlaying = true;
-  }, 500);
-});
+// Muted inline video may autoplay; fall back to an explicit control when blocked.
+video.play().catch(() => playbackHint());
 
 // ========================
 // Start Application
 // ========================
-animate();
+renderer.setAnimationLoop(animate);

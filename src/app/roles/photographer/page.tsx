@@ -9,7 +9,7 @@ export default function Photographer() {
       <section className="mt-[-60px] w-screen justify-center items-center">
         <PhotographerShowcase />
       </section>
-      <section className="mt-12 w-full py-8">
+      <section id="photo-gallery" className="mt-12 w-full py-8 scroll-mt-24">
         <PhotographerSection />
       </section>
     </main>

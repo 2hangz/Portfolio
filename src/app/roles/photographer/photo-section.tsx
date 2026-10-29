@@ -20,7 +20,7 @@ export default function PhotographerSection() {
         className="mb-12 text-center"
       >
         <h1 className="text-4xl font-bold mb-3">{t("Photographer")}</h1>
-        <p className="text-gray-400 max-w-2xl mx-auto leading-relaxed">{t("A visual storyteller capturing people, products, and places. My photography blends design sensibility and narrative — turning everyday moments into meaningful visual experiences.")}</p>
+        <p className="text-gray-400 max-w-2xl mx-auto leading-relaxed">{t("I capture people, products and places through visual storytelling. My photography combines design and narrative to turn everyday moments into meaningful visual experiences.")}</p>
       </motion.section>
 
       {/* Section: Landscape Photos */}

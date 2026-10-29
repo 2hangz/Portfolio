@@ -155,7 +155,7 @@ export default function AboutExperience() {
     "date": "Apr 2026 – Present",
     "bullets": [
       "Translate AI product capabilities into practical use cases and content strategies across productivity, Office and agent workflows.",
-      "Coordinate creators and agency partners, connecting product priorities with content planning and delivery.",
+      "Coordinate with creators and agency partners to align content planning and delivery with product priorities.",
       "Build automated reporting and production tracking workflows to reduce repetitive operational work."
     ],
     "highlight": true
@@ -193,8 +193,8 @@ export default function AboutExperience() {
     "location": "Beijing, China",
     "date": "Apr 2019 – Jun 2021",
     "bullets": [
-      "Managed social publishing, audience enquiries and SEO, while producing promotional videos and marketing visuals.",
-      "Designed and iterated the UI for cloud-based products, and supported industry exhibition planning."
+      "Managed social publishing, audience enquiries and SEO while producing promotional videos and marketing visuals.",
+      "Designed and refined user interfaces for cloud-based products and supported industry exhibition planning."
     ],
     "highlight": false
   },

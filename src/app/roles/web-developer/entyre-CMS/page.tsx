@@ -6,7 +6,7 @@ export default function CMSPage() {
       <main className="min-h-screen px-6 py-10">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-2xl font-semibold text-gray-100">{t("CMS")}</h1>
-          <p className="text-sm text-gray-400 mt-2">{t("Internal content management system (React + Node/Express backend).")}</p>
+          <p className="text-sm text-gray-400 mt-2">{t("An internal content management system built with React and a Node.js/Express backend.")}</p>
   
           <a
             href="https://2hangz.github.io/CMS/#/login"
@@ -15,7 +15,7 @@ export default function CMSPage() {
             className="mt-4 inline-block text-blue-400 underline"
           >{t("Open CMS in a new tab")}</a>
 
-          <p className="text-xs text-gray-500 mt-3">{t('Editing requires an authorised account. The embedded projects keep their original language.')}</p>
+          <p className="text-xs text-gray-500 mt-3">{t('Editing requires an authorised account. Embedded projects are displayed in their original language.')}</p>
           <div className="mt-6 overflow-hidden rounded-2xl border border-gray-800 bg-black">
             <iframe
               title="ENTYRE CMS login"

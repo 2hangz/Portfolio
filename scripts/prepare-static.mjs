@@ -1,13 +1,16 @@
 // Optimise the exported asset only; preserve the original source model.
-import { readFile, writeFile, readdir, stat } from 'node:fs/promises';
+import { readFile, writeFile, readdir, stat, rename, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
 const require = createRequire(import.meta.url);
 const sharp = createRequire(require.resolve('next/package.json'))('sharp');
 const limit = 25 * 1024 * 1024;
-const modelPath = 'out/demos/three-lab/assets/models/m3.glb';
-const original = await readFile(modelPath);
-if (original.length > limit) {
+const root = 'out/demos/three-lab/assets';
+for (const name of await readdir(root + '/models')) {
+  if (!name.endsWith('.glb')) continue;
+  const modelPath = root + '/models/' + name;
+  const original = await readFile(modelPath);
   if (original.readUInt32LE(0) !== 0x46546c67 || original.readUInt32LE(4) !== 2) throw new Error('Expected a glTF 2.0 binary model');
   const jsonLength = original.readUInt32LE(12);
   const gltf = JSON.parse(original.subarray(20, 20 + jsonLength).toString());
@@ -16,17 +19,18 @@ if (original.length > limit) {
   const replacements = new Map();
   const imageIndices = new Set((gltf.materials ?? []).map(m => m.pbrMetallicRoughness?.baseColorTexture?.index)
     .filter(i => i !== undefined).map(i => gltf.textures[i].source));
-  for (const index of imageIndices) {
+  for (let index = 0; index < (gltf.images ?? []).length; index++) {
     const image = gltf.images[index];
     if (image.bufferView === undefined) continue;
     const view = gltf.bufferViews[image.bufferView];
     const bytes = bin.subarray(view.byteOffset ?? 0, (view.byteOffset ?? 0) + view.byteLength);
     const metadata = await sharp(bytes).metadata();
-    if (metadata.hasAlpha) continue;
-    const jpeg = await sharp(bytes).jpeg({ quality: 94, chromaSubsampling: '4:4:4' }).toBuffer();
+    const asJpeg = imageIndices.has(index) && !metadata.hasAlpha;
+    const resized = sharp(bytes).resize({ width: 1024, height: 1024, fit: 'inside', withoutEnlargement: true });
+    const jpeg = await (asJpeg ? resized.jpeg({ quality: 88, chromaSubsampling: '4:4:4' }) : resized.png({ compressionLevel: 9 })).toBuffer();
     if (jpeg.length >= bytes.length) continue;
     replacements.set(image.bufferView, jpeg);
-    image.mimeType = 'image/jpeg';
+    image.mimeType = asJpeg ? 'image/jpeg' : 'image/png';
   }
   let cursor = 0;
   const chunks = [];
@@ -54,8 +58,25 @@ if (original.length > limit) {
   const optimised = Buffer.concat([header, json, binHeader, newBin]);
   if (optimised.length > limit) throw new Error('Optimised model still exceeds the Cloudflare Pages limit');
   await writeFile(modelPath, optimised);
-  console.log(`Deployment model: ${(original.length / 1024 / 1024).toFixed(1)} -> ${(optimised.length / 1024 / 1024).toFixed(1)} MiB; geometry and animations preserved.`);
+  console.log(`${name}: ${(original.length / 1024 / 1024).toFixed(1)} -> ${(optimised.length / 1024 / 1024).toFixed(1)} MiB; geometry and animations preserved.`);
 }
+for (const name of await readdir(root + '/textures')) {
+  if (!/\.jpg$/i.test(name)) continue;
+  const path = root + '/textures/' + name;
+  const original = await readFile(path);
+  const compressed = await sharp(original).resize({ width: 2048, height: 2048, fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
+  if (compressed.length < original.length) await writeFile(path, compressed);
+  console.log(`${name}: ${(original.length / 1024 / 1024).toFixed(2)} -> ${(Math.min(compressed.length, original.length) / 1024 / 1024).toFixed(2)} MiB`);
+}
+const video = root + '/videos/dance.mp4';
+const temporaryVideo = root + '/videos/dance-web.mp4';
+const originalVideo = await stat(video);
+execFileSync(require('@ffmpeg-installer/ffmpeg').path, ['-hide_banner', '-loglevel', 'error', '-y', '-i', video,
+  '-vf', "scale='min(1280,iw)':-2", '-c:v', 'libx264', '-preset', 'medium', '-crf', '27',
+  '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', temporaryVideo]);
+if ((await stat(temporaryVideo)).size < originalVideo.size) await rename(temporaryVideo, video);
+else await unlink(temporaryVideo);
+console.log(`dance.mp4: ${(originalVideo.size / 1024 / 1024).toFixed(2)} -> ${((await stat(video)).size / 1024 / 1024).toFixed(2)} MiB; complete video retained`);
 async function checkSizes(directory) {
   for (const name of await readdir(directory)) {
     const path = join(directory, name);

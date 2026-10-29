@@ -18,7 +18,7 @@ export default function ProjectList() {
       slug:'graphic-designer',
       title: 'Graphic Designer',
       subtitle: 'Visual Communication · Branding',
-      desc: 'Created infographics, icon systems, and publication layouts that communicate complex environmental research in accessible, human-centred visuals aligned with UCC brand standards.',
+      desc: 'Created infographics, icon systems and publication layouts that present complex environmental research through accessible, human-centred visuals aligned with UCC brand standards.',
       tag: 'Figma · Photoshop · Illustrator · Layout Design',
     },
     {

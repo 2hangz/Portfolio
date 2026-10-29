@@ -1,4 +1,5 @@
 'use client';
+import { useT } from '@/components/SitePreferences';
 
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { ReactNode, useMemo, useRef, useState } from 'react';
@@ -16,6 +17,7 @@ type TimelineItem = {
 };
 
 function KindBadge({ kind }: { kind: ItemKind }) {
+  const t = useT();
   const map: Record<ItemKind, string> = {
     Work: 'bg-blue-500/15 text-blue-200 border-blue-500/30',
     Internship: 'bg-purple-500/15 text-purple-200 border-purple-500/30',
@@ -25,18 +27,19 @@ function KindBadge({ kind }: { kind: ItemKind }) {
 
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs border ${map[kind]}`}>
-      {kind}
+      {t(kind)}
     </span>
   );
 }
 
 function BulletList({ items }: { items: string[] }) {
+  const t = useT();
   return (
     <ul className="space-y-1.5">
       {items.map((b, i) => (
         <li key={i} className="text-sm text-gray-400 leading-relaxed flex gap-2">
           <span className="mt-2 w-1.5 h-1.5 rounded-full bg-gray-600 flex-shrink-0" />
-          <span>{b}</span>
+          <span>{t(b)}</span>
         </li>
       ))}
     </ul>
@@ -52,6 +55,7 @@ function ExperienceItem({
   idx: number;
   defaultOpen?: boolean;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(defaultOpen);
 
   // First layer: show only the most important bits
@@ -81,17 +85,17 @@ function ExperienceItem({
         {/* Header */}
         <div className="flex flex-wrap items-center gap-2">
           <KindBadge kind={item.kind} />
-          <h3 className="text-base font-semibold text-gray-100">{item.title}</h3>
+          <h3 className="text-base font-semibold text-gray-100">{t(item.title)}</h3>
         </div>
 
         {(item.org || item.location) && (
           <p className="text-sm text-gray-400 mt-1">
-            {item.org ? <span className="text-gray-300">{item.org}</span> : null}
-            {item.location ? <span className="text-gray-500"> · {item.location}</span> : null}
+            {item.org ? <span className="text-gray-300">{t(item.org)}</span> : null}
+            {item.location ? <span className="text-gray-500"> · {t(item.location)}</span> : null}
           </p>
         )}
 
-        <p className="text-xs text-gray-500 mt-1">{item.date}</p>
+        <p className="text-xs text-gray-500 mt-1">{t(item.date)}</p>
 
         {/* Preview bullets */}
         <div className="mt-3">
@@ -107,7 +111,7 @@ function ExperienceItem({
               aria-expanded={open}
               type="button"
             >
-              {open ? 'Show less' : `Show details (+${extraBullets.length})`}
+              {open ? t('Show less') : `${t('Show details')} (+${extraBullets.length})`}
               <span className={`transition ${open ? 'rotate-180' : ''}`}>▾</span>
             </button>
 
@@ -141,109 +145,113 @@ export default function AboutExperience() {
 
   const lineHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
 
-  const items: TimelineItem[] = useMemo(
-    () => [
-      {
-        kind: 'Internship',
-        title: 'Social Media Operation',
-        org: 'Tesla',
-        location: 'Beijing, China (Remote)',
-        date: 'Sept 2025 – Present',
-        bullets: [
-          'Produced short-form videos for matrix accounts, achieving ~500K weekly reach from a cold start; top posts exceeded 200K views.',
-          'Supported PR operations (media test-drive vehicle coordination) and streamlined SOPs for higher efficiency and consistency.',
-          'Contributed to content library system optimisation and collaborated cross-functionally with IT to enhance workflows.',
-        ],
-        highlight: true,
-      },
-      {
-        kind: 'Work',
-        title: 'Web Developer',
-        org: 'MaREI Centre, University College Cork',
-        location: 'Cork, Ireland',
-        date: 'May 2025 – Sept 2025',
-        bullets: [
-          'Designed static and interactive infographics to communicate sustainability data on end-of-life tyre reuse.',
-          'Translated technical findings into clear visuals for academic and public audiences.',
-          'Collaborated with researchers to ensure scientific accuracy, accessibility, and visual clarity.',
-        ],
-      },
-      {
-        kind: 'Work',
-        title: 'Project Manager & Content Producer',
-        org: 'Tesla',
-        location: 'Beijing, China',
-        date: 'Jun 2021 – Oct 2023',
-        bullets: [
-          'Produced bilingual graphic and video content across Tesla’s social platforms.',
-          'Photographed e-commerce product images for use across Tesla’s official website, online platforms, and offline marketing materials.',
-          'Increased engagement: Weibo followers from 20K → 135K; TikTok from 10K → 144K.',
-          'Managed both short and long-form videos; led multi-department coordination.',
-        ],
-      },
-      {
-        kind: 'Work',
-        title: 'Social Media Specialist',
-        org: 'CloudOptiek',
-        location: 'Beijing, China',
-        date: 'Apr 2019 – Jun 2021',
-        bullets: [
-          'Managed social publishing, audience interaction, and SEO optimisation; generated 100+ qualified leads for the sales team.',
-          'Produced promotional videos and campaign assets (shooting, editing, packaging).',
-          'Optimised end-to-end social workflow (request → production → publishing), improving overall efficiency by ~50%.',
-          'Supported industry exhibition planning and contributed to UI design for cloud-based products.',
-        ],
-      },
-      {
-        kind: 'Project',
-        title: 'Model S & X Accessories Video',
-        org: 'Tesla',
-        date: 'Q1 – Q2 2023',
-        bullets: [
-          'Planned and produced a DIY video for Model S & X accessories launch.',
-          'Coordinated script, scheduling, and resource management; reached 600K+ views.',
-        ],
-      },
-      {
-        kind: 'Project',
-        title: 'Internal Content Library',
-        org: 'Tesla',
-        date: 'Q2 – Q4 2022',
-        bullets: [
-          'Built an internal content library for the support team, improving search efficiency.',
-          'Saved 100+ man-hours annually through better structure and tagging.',
-        ],
-      },
-      {
-        kind: 'Education',
-        title: 'MSc in Interactive Media (First Class Honours / 1.1)',
-        org: 'University College Cork',
-        location: 'Ireland',
-        date: '2024 – Present',
-        bullets: [
-          'Core modules: Web Development, Graphics for Interactive Media, Internet-based Applications, 3D Graphics & Modelling, Mobile Multimedia, HCI.',
-        ],
-      },
-      {
-        kind: 'Education',
-        title: 'Bachelor of Management (Hospitality Management)',
-        org: 'Beijing Union University',
-        location: 'China',
-        date: '2014 – 2019',
-        bullets: ['GPA: 3.5 / 4.0'],
-      },
+  const t = useT();
+  const items: TimelineItem[] = [
+  {
+    "kind": "Work",
+    "title": "Content Marketing · Model Evaluation Strategy (MoA)",
+    "org": "ByteDance",
+    "location": "Beijing, China",
+    "date": "Apr 2026 – Present",
+    "bullets": [
+      "Translate AI product capabilities into practical use cases and content strategies across productivity, Office and agent workflows.",
+      "Coordinate creators and agency partners, connecting product priorities with content planning and delivery.",
+      "Build automated reporting and production tracking workflows to reduce repetitive operational work."
     ],
-    []
-  );
+    "highlight": true
+  },
+  {
+    "kind": "Work",
+    "title": "Web Developer",
+    "org": "MaREI Centre, University College Cork",
+    "location": "Cork, Ireland",
+    "date": "May 2025 – Sept 2025",
+    "bullets": [
+      "Developed the ENTYRE public research website and a CMS for publishing content and managing interactive workflows.",
+      "Combined interactive data visualisation, information design and web development to communicate sustainability research.",
+      "Collaborated with researchers to make technical information clearer and more accessible."
+    ],
+    "highlight": false
+  },
+  {
+    "kind": "Work",
+    "title": "Project Manager & Content Producer",
+    "org": "Tesla",
+    "location": "Beijing, China",
+    "date": "Jun 2021 – Oct 2023",
+    "bullets": [
+      "Planned and produced visual content, product photography and videos for Tesla’s E-shop and Service channels.",
+      "Coordinated scripts, schedules, filming and launch delivery for Model S & X accessories videos.",
+      "Developed reusable video templates and asset libraries, and contributed to internal media library improvements."
+    ],
+    "highlight": false
+  },
+  {
+    "kind": "Work",
+    "title": "Social Media Specialist",
+    "org": "CloudOptiek",
+    "location": "Beijing, China",
+    "date": "Apr 2019 – Jun 2021",
+    "bullets": [
+      "Managed social publishing, audience enquiries and SEO, while producing promotional videos and marketing visuals.",
+      "Designed and iterated the UI for cloud-based products, and supported industry exhibition planning."
+    ],
+    "highlight": false
+  },
+  {
+    "kind": "Project",
+    "title": "Doubao PC Agent Content",
+    "org": "ByteDance",
+    "location": "Beijing, China",
+    "date": "Q2 2026",
+    "bullets": [
+      "Developed practical content ideas around PC agent capabilities and coordinated content production across partners."
+    ],
+    "highlight": false
+  },
+  {
+    "kind": "Project",
+    "title": "Model S & X Accessories Video",
+    "org": "Tesla",
+    "location": "Beijing, China",
+    "date": "Q1 – Q2 2023",
+    "bullets": [
+      "Planned and produced DIY accessories videos for Tesla’s website and social channels, coordinating scripts, vehicles and filming resources."
+    ],
+    "highlight": false
+  },
+  {
+    "kind": "Education",
+    "title": "MSc in Interactive Media · First Class Honours",
+    "org": "University College Cork",
+    "location": "Ireland",
+    "date": "Graduated",
+    "bullets": [
+      "Studied web development, interactive graphics, 3D modelling, multimedia and human–computer interaction."
+    ],
+    "highlight": false
+  },
+  {
+    "kind": "Education",
+    "title": "Bachelor of Management · Hospitality Management",
+    "org": "Beijing Union University",
+    "location": "China",
+    "date": "2014 – 2019",
+    "bullets": [
+      "GPA: 3.5 / 4.0"
+    ],
+    "highlight": false
+  }
+];
 
   return (
     <section
       ref={ref}
-      className="bg-[#1a1a1a]/60 rounded-2xl p-6 border border-gray-800 shadow-lg relative overflow-hidden"
+      className="bg-[var(--surface)]/60 rounded-2xl p-6 border border-gray-800 shadow-lg relative overflow-hidden"
     >
       <div className="flex items-end justify-between gap-3 mb-4">
-        <h2 className="text-lg font-semibold text-gray-100">Education & Professional Experience</h2>
-        <p className="text-xs text-gray-500">Tap “Show details” to expand</p>
+        <h2 className="text-lg font-semibold text-gray-100">{t('Education & Professional Experience')}</h2>
+        <p className="text-xs text-gray-500">{t('Tap “Show details” to expand')}</p>
       </div>
 
       <div className="relative pl-8 space-y-8">
@@ -256,7 +264,7 @@ export default function AboutExperience() {
 
         {items.map((item, idx) => (
           <ExperienceItem
-            key={`${item.kind}-${item.title}-${item.date}-${idx}`}
+            key={`${item.kind}-${t(item.title)}-${t(item.date)}-${idx}`}
             item={item}
             idx={idx}
             defaultOpen={Boolean(item.highlight)} // only open the most important one by default

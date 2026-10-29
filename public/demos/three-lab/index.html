@@ -1,0 +1,24 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Virtual Classroom - CS6105</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <!-- Import importmap of the local module -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three":"./libs/three.module.js",
+        "three/addons":"../../labs/libs/jsm/"
+      }
+    }
+    </script>
+  <script type="module" src="main.js"></script>
+</body>
+</html>

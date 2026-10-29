@@ -1,7 +1,10 @@
+'use client';
+import { useT } from '@/components/SitePreferences';
 export default function Footer() {
+  const t = useT();
   return (
     <footer className="mt-6 flex justify-center">
-      <div className="bg-[#1a1a1a]/80 border border-gray-800 rounded-2xl px-8 py-6 shadow-lg flex flex-col items-center w-full max-w-xl mb-8">
+      <div className="bg-[var(--surface)]/80 border border-gray-800 rounded-2xl px-8 py-6 shadow-lg flex flex-col items-center w-full max-w-xl mb-8">
         <div className="flex gap-10 md:gap-14 text-gray-400">
           <a
             href="https://linkedin.com/in/hang-zhou-640852330"
@@ -35,7 +38,7 @@ export default function Footer() {
             className="flex flex-col items-center hover:text-blue-400 transition"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="inline-block mb-1" width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="2"/><path d="m22 7-8.957 7.247a2 2 0 0 1-2.486 0L2 7" stroke="currentColor" strokeWidth="2"/></svg>
-            <span className="text-xs">Email</span>
+            <span className="text-xs">{t("Email")}</span>
           </a>
         </div>
       </div>

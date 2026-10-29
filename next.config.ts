@@ -1,12 +1,8 @@
 import type { NextConfig } from "next";
-
-const isGithub = process.env.GITHUB_ACTIONS === "true";
-
-const nextConfig = {
+const nextConfig: NextConfig = {
   output: "export",
   images: { unoptimized: true },
-  basePath: isGithub ? "/Portfolio" : "",
+  basePath: "",
   eslint: { ignoreDuringBuilds: true },
 };
-
 export default nextConfig;

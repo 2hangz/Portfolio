@@ -1,4 +1,5 @@
 'use client';
+import { useT } from '@/components/SitePreferences';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -55,15 +56,14 @@ const projects = [
 ];
 
 export default function ProjectsPage() {
+  const t = useT();
   return (
     <main className="max-w-6xl mx-auto px-6 py-24 text-gray-200">
       <motion.h1
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-4xl font-bold mb-10 text-center"
-      >
-        Projects
-      </motion.h1>
+      >{t("Projects")}</motion.h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {projects.map((p, i) => (
@@ -73,7 +73,7 @@ export default function ProjectsPage() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
             viewport={{ once: true }}
-            className="bg-[#1a1a1a]/60 border border-gray-800 rounded-xl overflow-hidden hover:shadow-xl transition"
+            className="bg-[var(--surface)]/60 border border-gray-800 rounded-xl overflow-hidden hover:shadow-xl transition"
           >
             <Link href={`/projects/${p.slug}`}>
               <div className="relative w-full h-56 overflow-hidden">

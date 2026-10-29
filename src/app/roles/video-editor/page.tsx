@@ -7,7 +7,9 @@ import VideoPlayer from './videoPlayer';
 export default function Page() {
   const t = useT();
   return (
-    <VideoContainer>
+    <main>
+      <h1 className="text-3xl font-semibold text-center mt-12">{t("Video Editor")}</h1>
+      <VideoContainer>
       {videos.map((video, idx) => (
         <article
           key={idx}
@@ -31,5 +33,6 @@ export default function Page() {
         </article>
       ))}
     </VideoContainer>
+    </main>
   );
 }

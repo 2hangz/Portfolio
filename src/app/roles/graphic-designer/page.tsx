@@ -21,7 +21,7 @@ export default function GraphicDesignerPage() {
         className="mb-12 text-center"
       >
         <h1 className="text-4xl font-bold mb-3">{t("Graphic Designer")}</h1>
-        <p className="text-gray-400 max-w-2xl mx-auto leading-relaxed">{t("Designing for clarity, impact, and emotion—across print, digital, and branding projects. Here are samples from user guide illustration sets and product promotion campaigns.")}</p>
+        <p className="text-gray-400 max-w-2xl mx-auto leading-relaxed">{t("I design print, digital and branding materials that communicate clearly and connect with audiences. These projects include illustrated user guides and product promotion campaigns.")}</p>
       </motion.section>
 
       {/* User Guide Graphics */}
@@ -71,7 +71,7 @@ export default function GraphicDesignerPage() {
                           />
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                             <span className="text-sm text-gray-200 text-center">
-                              {t('Click to view the full')} {images.length} {t('-image set')}
+                              {t('View all {count} images').replace('{count}', String(images.length))}
                             </span>
                           </div>
                         </div>
@@ -116,7 +116,7 @@ export default function GraphicDesignerPage() {
           transition={{ delay: 0.3, duration: 0.7 }}
           className="mb-16"
         >
-          <h2 className="text-2xl font-semibold mb-5 text-center text-blue-400">{t("Products Promotion Graphics")}</h2>
+          <h2 className="text-2xl font-semibold mb-5 text-center text-blue-400">{t("Product Promotion Graphics")}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
             {Object.entries(productPromotionGraphics).map(([subset, images]) => {
               let title = '';
@@ -157,7 +157,7 @@ export default function GraphicDesignerPage() {
                           />
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                             <span className="text-sm text-gray-200 text-center">
-                              {t('Click to view the full')} {images.length} {t('-image set')}
+                              {t('View all {count} images').replace('{count}', String(images.length))}
                             </span>
                           </div>
                         </div>
@@ -225,7 +225,7 @@ export default function GraphicDesignerPage() {
                           />
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                             <span className="text-sm text-gray-200 text-center">
-                              {t('Click to view the full')} {images.length} {t('-image set')}
+                              {t('View all {count} images').replace('{count}', String(images.length))}
                             </span>
                           </div>
                         </div>

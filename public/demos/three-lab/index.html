@@ -3,22 +3,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Virtual Classroom - CS6105</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interactive 3D Classroom — Hang Zhou</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
+    #loading-panel { position: fixed; left: 12px; bottom: 12px; max-width: min(420px, calc(100vw - 32px)); z-index: 20; padding: 10px 14px; border-radius: 8px; background: #152238ee; color: white; font: 14px/1.5 system-ui, sans-serif; }
+    #retry-loading { margin-left: 8px; padding: 4px 8px; cursor: pointer; }
   </style>
 </head>
 <body>
+  <div id="loading-panel" role="status" data-state="loading"><span id="loading-message">Loading the 3D classroom…</span><button id="retry-loading" hidden>Retry</button></div>
   <!-- Import importmap of the local module -->
   <script type="importmap">
     {
       "imports": {
         "three":"./libs/three.module.js",
-        "three/addons":"../../labs/libs/jsm/"
+        "three/addons/":"./libs/"
       }
     }
     </script>
-  <script type="module" src="main.js"></script>
+  <script type="module" src="bootstrap.js"></script>
 </body>
 </html>

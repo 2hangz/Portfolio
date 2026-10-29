@@ -3,6 +3,7 @@ import { readFile, writeFile, readdir, stat, rename, unlink } from 'node:fs/prom
 import { join } from 'node:path';
 import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 const require = createRequire(import.meta.url);
 const sharp = createRequire(require.resolve('next/package.json'))('sharp');
 const limit = 25 * 1024 * 1024;
@@ -77,6 +78,34 @@ execFileSync(require('@ffmpeg-installer/ffmpeg').path, ['-hide_banner', '-loglev
 if ((await stat(temporaryVideo)).size < originalVideo.size) await rename(temporaryVideo, video);
 else await unlink(temporaryVideo);
 console.log(`dance.mp4: ${(originalVideo.size / 1024 / 1024).toFixed(2)} -> ${((await stat(video)).size / 1024 / 1024).toFixed(2)} MiB; complete video retained`);
+// Fingerprint every scene asset so browsers cannot mix a fresh page with cached scripts/assets.
+const sceneRoot = 'out/demos/three-lab';
+const digest = bytes => createHash('sha256').update(bytes).digest('hex').slice(0, 12);
+const versions = {};
+async function fingerprintAssets(directory, prefix = 'assets') {
+  for (const name of await readdir(directory)) {
+    const path = join(directory, name);
+    const relative = prefix + '/' + name;
+    if ((await stat(path)).isDirectory()) await fingerprintAssets(path, relative);
+    else versions[relative] = digest(await readFile(path));
+  }
+}
+await fingerprintAssets(root);
+let main = await readFile(sceneRoot + '/main.js', 'utf8');
+for (const [path, version] of Object.entries(versions)) {
+  main = main.replaceAll("'" + path + "'", "'" + path + '?v=' + version + "'");
+}
+const loadingVersion = digest(await readFile(sceneRoot + '/loading.js'));
+main = main.replace("'./loading.js'", "'./loading.js?v=" + loadingVersion + "'");
+await writeFile(sceneRoot + '/main.js', main);
+let bootstrap = await readFile(sceneRoot + '/bootstrap.js', 'utf8');
+bootstrap = bootstrap.replace("'./main.js'", "'./main.js?v=" + digest(main) + "'");
+await writeFile(sceneRoot + '/bootstrap.js', bootstrap);
+let html = await readFile(sceneRoot + '/index.html', 'utf8');
+html = html.replace('src="bootstrap.js"', 'src="bootstrap.js?v=' + digest(bootstrap) + '"');
+await writeFile(sceneRoot + '/index.html', html);
+await writeFile(sceneRoot + '/asset-manifest.json', JSON.stringify(versions, null, 2) + '\n');
+console.log('Versioned all WebGL models, textures, media and entry scripts.');
 async function checkSizes(directory) {
   for (const name of await readdir(directory)) {
     const path = join(directory, name);

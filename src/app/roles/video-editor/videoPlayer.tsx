@@ -19,6 +19,8 @@ export default function VideoPlayer({ video }: Props) {
   if (video.type === 'youtube') {
     return (
       <iframe
+        title={video.title}
+        loading="lazy"
         src={`https://www.youtube.com/embed/${video.id}`}
         className="w-full h-full"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

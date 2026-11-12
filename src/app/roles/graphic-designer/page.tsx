@@ -2,6 +2,12 @@
 import { useT } from '@/components/SitePreferences';
 
 import Image from 'next/image';
+
+function previewImage(src: string) {
+  return process.env.NODE_ENV === 'production'
+    ? src.replace('/graphics/', '/graphics-preview/') + '.webp'
+    : src;
+}
 import { motion } from 'framer-motion';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
@@ -63,7 +69,7 @@ export default function GraphicDesignerPage() {
                       <PhotoView src={images[0]}>
                         <div className="relative w-full h-64 overflow-hidden rounded-b-xl">
                           <Image
-                            src={images[0]}
+                            src={previewImage(images[0])}
                             alt={`${t(title)} Cover`}
                             fill
                             sizes="(max-width: 640px) 100vw, 33vw"
@@ -76,16 +82,8 @@ export default function GraphicDesignerPage() {
                           </div>
                         </div>
                       </PhotoView>
-                      {images.slice(1).map((img, idx) => (
-                        <PhotoView key={img} src={img}>
-                          <Image
-                            src={img}
-                            alt={`${t(title)} ${idx + 2}`}
-                            width={0}
-                            height={0}
-                            className="hidden"
-                          />
-                        </PhotoView>
+                      {images.slice(1).map((img) => (
+                        <PhotoView key={img} src={img} />
                       ))}
                     </div>
                     {/* small images */}
@@ -93,7 +91,7 @@ export default function GraphicDesignerPage() {
                       {images.map((img, tIdx) => (
                         <div key={img} className="relative w-20 h-14 rounded overflow-hidden border border-gray-700">
                           <Image
-                            src={img}
+                            src={previewImage(img)}
                             alt={`${t(title)} Thumbnail ${tIdx + 1}`}
                             fill
                             sizes="(max-width: 640px) 100vw, 33vw"
@@ -149,7 +147,7 @@ export default function GraphicDesignerPage() {
                       <PhotoView src={images[0]}>
                         <div className="relative w-full h-64 overflow-hidden rounded-b-xl">
                           <Image
-                            src={images[0]}
+                            src={previewImage(images[0])}
                             alt={`${t(title)} Cover`}
                             fill
                             sizes="(max-width: 640px) 100vw, 33vw"
@@ -162,16 +160,8 @@ export default function GraphicDesignerPage() {
                           </div>
                         </div>
                       </PhotoView>
-                      {images.slice(1).map((img, idx) => (
-                        <PhotoView key={img} src={img}>
-                          <Image
-                            src={img}
-                            alt={`${t(title)} ${idx + 2}`}
-                            width={0}
-                            height={0}
-                            className="hidden"
-                          />
-                        </PhotoView>
+                      {images.slice(1).map((img) => (
+                        <PhotoView key={img} src={img} />
                       ))}
                     </div>
                     {/* small images */}
@@ -179,7 +169,7 @@ export default function GraphicDesignerPage() {
                       {images.map((img, tIdx) => (
                         <div key={img} className="relative w-20 h-14 rounded overflow-hidden border border-gray-700">
                           <Image
-                            src={img}
+                            src={previewImage(img)}
                             alt={`${t(title)} Thumbnail ${tIdx + 1}`}
                             fill
                             sizes="(max-width: 640px) 100vw, 33vw"
@@ -217,7 +207,7 @@ export default function GraphicDesignerPage() {
                       <PhotoView src={images[0]}>
                         <div className="relative w-full h-64 overflow-hidden rounded-b-xl">
                           <Image
-                            src={images[0]}
+                            src={previewImage(images[0])}
                             alt={`${t(title)} Cover`}
                             fill
                             sizes="(max-width: 640px) 100vw, 33vw"
@@ -230,16 +220,8 @@ export default function GraphicDesignerPage() {
                           </div>
                         </div>
                       </PhotoView>
-                      {images.slice(1).map((img, idx) => (
-                        <PhotoView key={img} src={img}>
-                          <Image
-                            src={img}
-                            alt={`${t(title)} ${idx + 2}`}
-                            width={0}
-                            height={0}
-                            className="hidden"
-                          />
-                        </PhotoView>
+                      {images.slice(1).map((img) => (
+                        <PhotoView key={img} src={img} />
                       ))}
                     </div>
                     {/* small images */}
@@ -247,7 +229,7 @@ export default function GraphicDesignerPage() {
                       {images.map((img, tIdx) => (
                         <div key={img} className="relative w-20 h-14 rounded overflow-hidden border border-gray-700">
                           <Image
-                            src={img}
+                            src={previewImage(img)}
                             alt={`${t(title)} Thumbnail ${tIdx + 1}`}
                             fill
                             sizes="(max-width: 640px) 100vw, 33vw"

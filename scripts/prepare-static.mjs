@@ -1,5 +1,5 @@
 // Optimise the exported asset only; preserve the original source model.
-import { readFile, writeFile, readdir, stat, rename, unlink } from 'node:fs/promises';
+import { readFile, writeFile, readdir, stat, rename, unlink, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
@@ -27,8 +27,8 @@ for (const name of await readdir(root + '/models')) {
     const bytes = bin.subarray(view.byteOffset ?? 0, (view.byteOffset ?? 0) + view.byteLength);
     const metadata = await sharp(bytes).metadata();
     const asJpeg = imageIndices.has(index) && !metadata.hasAlpha;
-    const resized = sharp(bytes).resize({ width: 1024, height: 1024, fit: 'inside', withoutEnlargement: true });
-    const jpeg = await (asJpeg ? resized.jpeg({ quality: 88, chromaSubsampling: '4:4:4' }) : resized.png({ compressionLevel: 9 })).toBuffer();
+    const resized = sharp(bytes).resize({ width: 768, height: 768, fit: 'inside', withoutEnlargement: true });
+    const jpeg = await (asJpeg ? resized.jpeg({ quality: 82 }) : resized.png({ compressionLevel: 9 })).toBuffer();
     if (jpeg.length >= bytes.length) continue;
     replacements.set(image.bufferView, jpeg);
     image.mimeType = asJpeg ? 'image/jpeg' : 'image/png';
@@ -65,7 +65,7 @@ for (const name of await readdir(root + '/textures')) {
   if (!/\.jpg$/i.test(name)) continue;
   const path = root + '/textures/' + name;
   const original = await readFile(path);
-  const compressed = await sharp(original).resize({ width: 2048, height: 2048, fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
+  const compressed = await sharp(original).resize({ width: 1024, height: 1024, fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 80 }).toBuffer();
   if (compressed.length < original.length) await writeFile(path, compressed);
   console.log(`${name}: ${(original.length / 1024 / 1024).toFixed(2)} -> ${(Math.min(compressed.length, original.length) / 1024 / 1024).toFixed(2)} MiB`);
 }
@@ -73,8 +73,8 @@ const video = root + '/videos/dance.mp4';
 const temporaryVideo = root + '/videos/dance-web.mp4';
 const originalVideo = await stat(video);
 execFileSync(require('@ffmpeg-installer/ffmpeg').path, ['-hide_banner', '-loglevel', 'error', '-y', '-i', video,
-  '-vf', "scale='min(1280,iw)':-2", '-c:v', 'libx264', '-preset', 'medium', '-crf', '27',
-  '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', temporaryVideo]);
+  '-vf', "scale='min(960,iw)':-2", '-c:v', 'libx264', '-preset', 'medium', '-crf', '29',
+  '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', temporaryVideo]);
 if ((await stat(temporaryVideo)).size < originalVideo.size) await rename(temporaryVideo, video);
 else await unlink(temporaryVideo);
 console.log(`dance.mp4: ${(originalVideo.size / 1024 / 1024).toFixed(2)} -> ${((await stat(video)).size / 1024 / 1024).toFixed(2)} MiB; complete video retained`);
@@ -112,6 +112,21 @@ async function checkSizes(directory) {
     const info = await stat(path);
     if (info.isDirectory()) await checkSizes(path);
     else if (info.size > limit) throw new Error(`Asset exceeds 25 MiB: ${path}`);
+  }
+}
+// Keep the full-resolution gallery files for the lightbox.
+for (const folder of await readdir('out/graphics')) {
+  const originals = join('out/graphics', folder);
+  if (!(await stat(originals)).isDirectory()) continue;
+  const previews = join('out/graphics-preview', folder);
+  await mkdir(previews, { recursive: true });
+  for (const name of await readdir(originals)) {
+    if (!/\.(png|jpe?g)$/i.test(name)) continue;
+    await sharp(join(originals, name))
+      .rotate()
+      .resize({ width: 800, height: 800, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toFile(join(previews, name + '.webp'));
   }
 }
 await checkSizes('out');

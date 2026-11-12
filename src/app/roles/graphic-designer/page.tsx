@@ -3,16 +3,16 @@ import { useT } from '@/components/SitePreferences';
 
 import Image from 'next/image';
 
+import { PhotoProvider, PhotoView } from 'react-photo-view';
+import 'react-photo-view/dist/react-photo-view.css';
+import { userGuideGraphics, productPromotionGraphics, storytellingGraphics } from './graphic-design-list';
+
+
 function previewImage(src: string) {
   return process.env.NODE_ENV === 'production'
     ? src.replace('/graphics/', '/graphics-preview/') + '.webp'
     : src;
 }
-import { motion } from 'framer-motion';
-import { PhotoProvider, PhotoView } from 'react-photo-view';
-import 'react-photo-view/dist/react-photo-view.css';
-import { userGuideGraphics, productPromotionGraphics, storytellingGraphics } from './graphic-design-list';
-
 
 export default function GraphicDesignerPage() {
   const t = useT();
@@ -20,22 +20,16 @@ export default function GraphicDesignerPage() {
   return (
     <main className="max-w-6xl mx-auto px-6 py-24 text-gray-200">
       {/* Header */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+      <section
         className="mb-12 text-center"
       >
         <h1 className="text-4xl font-bold mb-3">{t("Graphic Designer")}</h1>
         <p className="text-gray-400 max-w-2xl mx-auto leading-relaxed">{t("I design print, digital and branding materials that communicate clearly and connect with audiences. These projects include illustrated user guides and product promotion campaigns.")}</p>
-      </motion.section>
+      </section>
 
       {/* User Guide Graphics */}
       <PhotoProvider>
-        <motion.section
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.7 }}
+        <section
           className="mb-16"
         >
           <h2 className="text-2xl font-semibold mb-5 text-center text-blue-400">{t("User Guide Graphics")}</h2>
@@ -105,13 +99,10 @@ export default function GraphicDesignerPage() {
               );
             })}
           </div>
-        </motion.section>
+        </section>
 
         {/* Product Promotion Graphics */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.7 }}
+        <section
           className="mb-16"
         >
           <h2 className="text-2xl font-semibold mb-5 text-center text-blue-400">{t("Product Promotion Graphics")}</h2>
@@ -183,13 +174,10 @@ export default function GraphicDesignerPage() {
               );
             })}
           </div>
-        </motion.section>
+        </section>
 
         {/* Storytelling Graphics */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.7 }}
+        <section
           className="mb-16"
         >
           <h2 className="text-2xl font-semibold mb-5 text-center text-blue-400">{t("Storytelling Graphics")}</h2>
@@ -243,7 +231,7 @@ export default function GraphicDesignerPage() {
               );
             })}
           </div>
-        </motion.section>
+        </section>
 
       </PhotoProvider>
     </main>
